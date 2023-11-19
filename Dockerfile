@@ -27,7 +27,7 @@ WORKDIR /app
 COPY --from=builder /app/gitlab-simple-exporter .
 
 # Expose the port that the application will run on
-EXPOSE 8080
+EXPOSE 8000
 
 # Command to run the application
 CMD ["./gitlab-simple-exporter"]
