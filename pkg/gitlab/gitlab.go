@@ -20,6 +20,7 @@ type ObjectAttributes struct {
 type Project struct {
 	Name      string
 	Namespace string
+	Web_url   string
 }
 
 type Build struct {

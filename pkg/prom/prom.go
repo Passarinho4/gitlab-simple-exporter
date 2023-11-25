@@ -5,66 +5,49 @@ import (
 )
 
 type Metrics struct {
-	PipelineCounter         *prometheus.CounterVec
-	SuccessPipelinesCounter *prometheus.CounterVec
-	FailedPipelinesCounter  *prometheus.CounterVec
-	PipelineDurations       *prometheus.GaugeVec
-	BuildDurations          *prometheus.GaugeVec
+	PipelineCounter   *prometheus.CounterVec
+	PipelineDurations *GaugeVecTtl
+	BuildDurations    *GaugeVecTtl
 }
 
 func NewMetrics(reg prometheus.Registerer) *Metrics {
 	m := &Metrics{
 		PipelineCounter: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
-				Name: "pipeline_counter",
+				Name: "gitlab_ci_pipeline_total",
 				Help: "Number of executed pipelines",
 			},
-			[]string{"namespace", "project_name", "branch"},
+			[]string{"repo", "branch", "status"},
 		),
-		SuccessPipelinesCounter: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Name: "success_pileline_counter",
-				Help: "Number of successfully executed pipelines",
-			},
-			[]string{"namespace", "project_name", "branch"},
-		),
-		FailedPipelinesCounter: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Name: "failed_pipeline_counter",
-				Help: "Number of unsuccessfully executed pipelines",
-			},
-			[]string{"namespace", "project_name", "branch"},
-		),
-		PipelineDurations: prometheus.NewGaugeVec(
+		PipelineDurations: NewGaugeVecTtl(
 			prometheus.GaugeOpts{
-				Name: "pipelines_durations",
+				Name: "gitlab_ci_pipeline_duration",
 				Help: "Duration of pipeline execution",
 			},
 			[]string{
-				"namespace",
-				"project_name",
+				"repo",
 				"branch",
 				"pipeline_id",
 			},
+			300,
 		),
-		BuildDurations: prometheus.NewGaugeVec(
+		BuildDurations: NewGaugeVecTtl(
 			prometheus.GaugeOpts{
-				Name: "builds_durations",
+				Name: "gitlab_ci_build_duration",
 				Help: "Duration of build in pipeline execution",
 			},
 			[]string{
-				"namespace",
-				"project_name",
+				"repo",
 				"branch",
 				"pipeline_id",
 				"build_stage",
+				"build_status",
 			},
+			300,
 		),
 	}
 	reg.MustRegister(m.PipelineCounter)
-	reg.MustRegister(m.SuccessPipelinesCounter)
-	reg.MustRegister(m.FailedPipelinesCounter)
-	reg.MustRegister(m.PipelineDurations)
-	reg.MustRegister(m.BuildDurations)
+	reg.MustRegister(m.PipelineDurations.gaugeVec)
+	reg.MustRegister(m.BuildDurations.gaugeVec)
 	return m
 }
