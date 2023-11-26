@@ -60,6 +60,10 @@ func (j GitlabTime) Format(s string) string {
 	return t.Format(s)
 }
 
+func (j GitlabTime) Sec() int64 {
+	return time.Time(j).Unix()
+}
+
 func ParseGitlabHook(req *http.Request) (*GitlabRequest, error) {
 	var r GitlabRequest
 

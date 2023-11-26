@@ -34,6 +34,9 @@ func handleGitlabHook(w http.ResponseWriter, req *http.Request) {
 	metrics.PipelineDurations.WithLabelValues(r.Project.Web_url,
 		r.Object_attributes.Ref, strconv.Itoa(r.Object_attributes.Id)).Add(float64(r.Object_attributes.Duration))
 
+	metrics.PipelineTimestamps.WithLabelValues(r.Project.Web_url,
+		r.Object_attributes.Ref, strconv.Itoa(r.Object_attributes.Id)).Add(float64(r.Object_attributes.Created_at.Sec()))
+
 	for i := 0; i < len(r.Builds); i++ {
 		metrics.BuildDurations.WithLabelValues(r.Project.Web_url,
 			r.Object_attributes.Ref, strconv.Itoa(r.Object_attributes.Id), r.Builds[i].Stage, r.Builds[i].Status).Add(float64(r.Builds[i].Duration))
