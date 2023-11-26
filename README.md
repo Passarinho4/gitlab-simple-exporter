@@ -21,23 +21,23 @@ The `/metrics` endpoint provides a Prometheus-compatible interface for retrievin
 Here is an example of the metrics exposed by the `/metrics` endpoint:
 
 ```plaintext
-# HELP builds_durations Duration of build in pipeline execution
-# TYPE builds_durations gauge
-builds_durations{branch="master",build_stage="build",namespace="example-group",pipeline_id="123456",project_name="example-project"} 221.12
-builds_durations{branch="master",build_stage="patch-version",namespace="example-group",pipeline_id="123456",project_name="example-project"} 34.89
-# HELP pipeline_counter Number of executed pipelines
-# TYPE pipeline_counter counter
-pipeline_counter{branch="master",namespace="example-group",project_name="example-project"} 3
-# HELP pipelines_durations Duration of pipeline execution
-# TYPE pipelines_durations gauge
-pipelines_durations{branch="master",namespace="example-group",pipeline_id="123456",project_name="example-project"} 255
+# HELP gitlab_ci_build_duration Duration in seconds of the most recent job
+# TYPE gitlab_ci_build_duration gauge
+gitlab_ci_build_duration{branch="master",build_stage="build",build_status="success",pipeline_id="157454",repo="https://gitlab.com/xxx"} 73.70997619628906
+gitlab_ci_build_duration{branch="master",build_stage="patch-version",build_status="success",pipeline_id="157454",repo="https://gitlab.com/xxx"} 11.628866195678711
+# HELP gitlab_ci_pipeline_duration Duration in seconds of the most recent pipeline
+# TYPE gitlab_ci_pipeline_duration gauge
+gitlab_ci_pipeline_duration{branch="master",pipeline_id="157454",repo="https://gitlab.com/xxx"} 85
+# HELP gitlab_ci_pipeline_job_timestamp Creation date timestamp of the most recent pipeline
+# TYPE gitlab_ci_pipeline_job_timestamp gauge
+gitlab_ci_pipeline_job_timestamp{branch="master",pipeline_id="157454",repo="https://gitlab.com/xxx"} 1.700339585e+09
+# HELP gitlab_ci_pipeline_total Number of executed pipelines
+# TYPE gitlab_ci_pipeline_total counter
+gitlab_ci_pipeline_total{branch="master",repo="https://gitlab.com/xxx",status="success"} 1
 # HELP promhttp_metric_handler_errors_total Total number of internal errors encountered by the promhttp metric handler.
 # TYPE promhttp_metric_handler_errors_total counter
 promhttp_metric_handler_errors_total{cause="encoding"} 0
 promhttp_metric_handler_errors_total{cause="gathering"} 0
-# HELP success_pipeline_counter Number of successfully executed pipelines
-# TYPE success_pipeline_counter counter
-success_pipeline_counter{branch="master",namespace="example-group",project_name="example-project"} 3
 ```
 
 Please note that the above example is anonymized. The metrics include data such as build durations, pipeline counters, and errors encountered by the Prometheus HTTP metric handler.
@@ -45,7 +45,7 @@ Please note that the above example is anonymized. The metrics include data such 
 ## Known Issues
 Date Parsing Format: The application currently uses the "2006-01-02 15:04:05 -0700" format for parsing dates. Consider this when working with date-related functionalities.
 
-Metrics Reset: The application resets metrics once per hour. Ensure that Prometheus gathers newly added values before garbage collection to avoid potential data loss.
+Race condition: There might be a race condition during garbage collection job - this will be fixed in the future. But right now it is not critical in my usecase. 
 
 ## Future Enhancements
 In the future, we plan to add a dashboard to provide a more user-friendly visualization of the GitLab pipeline metrics.
